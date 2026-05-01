@@ -3,35 +3,39 @@ pipeline {
 
     stages {
 
-        stage('SCM') {
+        stage('Checkout') {
             steps {
-                // Pull code from your repo
+                echo "📥 Cloning repository..."
                 checkout scm
             }
         }
 
-        stage('Deploy (CD)') {
+        stage('stop container') {
             steps {
-                sh '''
-                echo "Stopping existing containers..."
-                docker-compose down
-
-                echo "Starting containers..."
-                docker-compose up -d
-                '''
+                echo "🚀 Stoping Monitor..."
+                dir('monitor') {
+                    sh 'docker-compose down'
             }
         }
 
-        stage('Monitor') {
+        stage('Deploy Monitoring Stack') {
             steps {
-                sh '''
-                echo "Checking running containers..."
-                docker ps
-
-                echo "Checking logs (last 20 lines)..."
-                docker-compose logs --tail=20
-                '''
+                echo "📊 Deploying Monitoring..."
+                dir('monitor') {
+                    sh 'docker-compose up -d'
+                }
             }
+        }
+
+    }
+
+    post {
+        success {
+            echo "✅ Deployment successful"
+        }
+
+        failure {
+            echo "❌ Deployment failed"
         }
     }
 }
