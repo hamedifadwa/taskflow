@@ -20,18 +20,14 @@ pipeline {
         stage('Stop container') {
             steps {
                 echo "🚀 Stopping Monitor..."
-                dir('monitor') {
-                    sh 'docker-compose down'
-                }
+                sh 'docker-compose -f monitor/docker-compose.yml down'
             }
         }
 
         stage('Deploy Monitoring Stack') {
             steps {
                 echo "📊 Deploying Monitoring..."
-                dir('monitor') {
-                    sh 'docker-compose up -d'
-                }
+                sh 'docker-compose -f monitor/docker-compose.yml up -d'
             }
         }
 
