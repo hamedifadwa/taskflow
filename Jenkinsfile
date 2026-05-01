@@ -2,27 +2,17 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_DIR = "/workspace/taskflow"
-        MONITOR_DIR = "/workspace/taskflow/monitor"
+        BACKEND_DIR = "/workspace/taskflow/taskflow_backend_django"
+        MONITOR_DIR = "/workspace/taskflow/taskflow_backend_django/monitor"
     }
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                echo "📥 Repository already available in mounted workspace"
-                sh 'ls -R $PROJECT_DIR'
-            }
-        }
-
         stage('Debug Workspace') {
             steps {
-                echo "🔍 Checking workspace structure..."
                 sh '''
                     pwd
-                    ls -l $PROJECT_DIR
-                    ls -l $MONITOR_DIR
-                    file $MONITOR_DIR/prometheus.yml
+                    ls -R /workspace/taskflow
                 '''
             }
         }
@@ -32,7 +22,7 @@ pipeline {
                 echo "🛑 Stopping monitoring stack..."
                 sh '''
                     cd $MONITOR_DIR
-                    docker-compose down
+                    docker-compose down || true
                 '''
             }
         }
@@ -54,7 +44,7 @@ pipeline {
         }
 
         failure {
-            echo "❌ Deployment failed - check logs"
+            echo "❌ Deployment failed"
         }
     }
 }
