@@ -12,12 +12,21 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Install uv
 RUN pip install --no-cache-dir uv
 
+# Install deps (creates .venv)
 COPY pyproject.toml uv.lock ./
 RUN uv sync
 
-COPY . .
+# Add venv to PATH 👇 (THIS is the key fix)
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Copy app
+COPY manage.py .
+COPY config/ config/
+COPY apps/ apps/
+COPY static/ static/
 
 EXPOSE 8000
 
