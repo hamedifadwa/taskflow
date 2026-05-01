@@ -10,11 +10,12 @@ pipeline {
             }
         }
 
-        stage('stop container') {
+        stage('Stop container') {
             steps {
-                echo "🚀 Stoping Monitor..."
+                echo "🚀 Stopping Monitor..."
                 dir('monitor') {
                     sh 'docker-compose down'
+                }
             }
         }
 
