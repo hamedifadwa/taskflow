@@ -5,7 +5,7 @@ pipeline {
 
         stage('Checkout SCM') {
             steps {
-                echo "📥 Pulling latest code from repository..."
+                echo "📥 Checking out source code..."
                 checkout scm
             }
         }
@@ -14,7 +14,8 @@ pipeline {
             steps {
                 echo "🛑 Stopping monitoring stack..."
                 sh '''
-                    docker compose -f /home/user/taskflow/taskflow_backend_django/monitor/docker-compose.yml down || true
+                    cd /workspace/taskflow/taskflow_backend_django/monitor \
+                    && docker compose down || true
                 '''
             }
         }
@@ -23,7 +24,8 @@ pipeline {
             steps {
                 echo "📊 Deploying monitoring stack..."
                 sh '''
-                    docker compose -f /home/user/taskflow/taskflow_backend_django/monitor/docker-compose.yml up -d
+                    cd /workspace/taskflow/taskflow_backend_django/monitor \
+                    && docker compose up -d
                 '''
             }
         }
