@@ -10,6 +10,13 @@ pipeline {
             }
         }
 
+        stage('Debug') {
+            steps {
+                sh 'pwd'
+                sh 'ls -R'
+            }
+        }
+
         stage('Stop container') {
             steps {
                 echo "🚀 Stopping Monitor..."
