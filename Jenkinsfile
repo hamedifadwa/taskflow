@@ -1,36 +1,51 @@
 pipeline {
     agent any
 
+    environment {
+        PROJECT_DIR = "/workspace/taskflow"
+        MONITOR_DIR = "/workspace/taskflow/monitor"
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
-                echo "📥 Cloning repository..."
-                checkout scm
+                echo "📥 Repository already available in mounted workspace"
+                sh 'ls -R $PROJECT_DIR'
             }
         }
 
-        stage('Debug') {
+        stage('Debug Workspace') {
             steps {
-                sh 'pwd'
-                sh 'ls -R'
+                echo "🔍 Checking workspace structure..."
+                sh '''
+                    pwd
+                    ls -l $PROJECT_DIR
+                    ls -l $MONITOR_DIR
+                    file $MONITOR_DIR/prometheus.yml
+                '''
             }
         }
 
-        stage('Stop container') {
+        stage('Stop Monitoring Stack') {
             steps {
-                echo "🚀 Stopping Monitor..."
-                sh 'docker-compose -f monitor/docker-compose.yml down'
+                echo "🛑 Stopping monitoring stack..."
+                sh '''
+                    cd $MONITOR_DIR
+                    docker-compose down
+                '''
             }
         }
 
         stage('Deploy Monitoring Stack') {
             steps {
-                echo "📊 Deploying Monitoring..."
-                sh 'docker-compose -f monitor/docker-compose.yml up -d'
+                echo "📊 Deploying monitoring stack..."
+                sh '''
+                    cd $MONITOR_DIR
+                    docker-compose up -d
+                '''
             }
         }
-
     }
 
     post {
@@ -39,7 +54,7 @@ pipeline {
         }
 
         failure {
-            echo "❌ Deployment failed"
+            echo "❌ Deployment failed - check logs"
         }
     }
 }
