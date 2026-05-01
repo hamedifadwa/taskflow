@@ -1,19 +1,12 @@
 pipeline {
     agent any
 
-    environment {
-        BACKEND_DIR = "/workspace/taskflow/taskflow_backend_django"
-        MONITOR_DIR = "/workspace/taskflow/taskflow_backend_django/monitor"
-    }
-
     stages {
 
-        stage('Debug Workspace') {
+        stage('Checkout SCM') {
             steps {
-                sh '''
-                    pwd
-                    ls -R /workspace/taskflow
-                '''
+                echo "📥 Pulling latest code from repository..."
+                checkout scm
             }
         }
 
@@ -21,8 +14,7 @@ pipeline {
             steps {
                 echo "🛑 Stopping monitoring stack..."
                 sh '''
-                    cd $MONITOR_DIR
-                    docker-compose down || true
+                    docker compose -f /home/user/taskflow/taskflow_backend_django/monitor/docker-compose.yml down || true
                 '''
             }
         }
@@ -31,11 +23,11 @@ pipeline {
             steps {
                 echo "📊 Deploying monitoring stack..."
                 sh '''
-                    cd $MONITOR_DIR
-                    docker-compose up -d
+                    docker compose -f /home/user/taskflow/taskflow_backend_django/monitor/docker-compose.yml up -d
                 '''
             }
         }
+
     }
 
     post {
